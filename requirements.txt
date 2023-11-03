@@ -1,0 +1,4 @@
+py-cord
+asyncio
+python-dotenv
+requests
