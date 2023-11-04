@@ -1,26 +1,28 @@
 # packages
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 import asyncio
 from dotenv import load_dotenv
 import os
 import requests
 import json
+import datetime
 
-# initial setup
-config = {
-    "Status": "Femboys",
-    "MonthlyReset": True,
-}
-
+# environment variables
 load_dotenv()
 TOKEN = os.getenv("TOKEN")
 femboys = int(os.getenv("FEMBOY_COUNT", 0))
 
+# initial setup
+config = {
+    "Status": os.getenv("STATUS", "Femboys"),
+    "MonthlyReset": os.getenv("MONTHLY_RESET", False),
+}
+
 intents = discord.Intents.default()
 bot = commands.Bot(intents=intents)
 
-api = os.getenv("API", "https://femboyfinder.firestreaker2.gq")
+api = os.getenv("API", "https://femboyfinder.firestreaker2.gq/api")
 
 
 # events
@@ -55,15 +57,13 @@ async def on_guild_join(guild):
             name="Notice",
             value="Please note that I may occasionally send NSFW content.",
         )
-        embed.set_thumbnail(
-            url="https://i.pinimg.com/736x/50/77/1f/50771f45b1c015cfbb8b0853ba7b8521.jpg"
-        )
+        embed.set_thumbnail(url="attachment://astolfo.jpg")
         embed.set_footer(
             text="Made by FireStreaker2",
-            icon_url="https://media.discordapp.net/attachments/739313608923807844/1096169389339967618/image0.jpg",
+            icon_url="attachment://gura.png",
         )
 
-        await channel.send(embed=embed)
+        await channel.send(embed=embed, files=[pfp, logo])
     except Exception as error:
         print(f"Unable to send welcome message: {error}")
 
@@ -80,13 +80,25 @@ async def on_command_error(ctx, error):
         await ctx.respond(f"An error occurred: {error}")
 
 
+@tasks.loop(minutes=1)
+async def check_reset():
+    if config["MonthlyReset"] == True:
+        now = datetime.datetime.now()
+        if now.day == 1 and now.hour == 0 and now.minute == 0:
+            global femboys
+            femboys = 0
+
+
 # commands
-@bot.slash_command(help="Find a femboy near you!")
+@bot.slash_command(description="Find a femboy near you!")
 async def find(ctx, query):
+    pfp = discord.File("./images/gura.png", filename="gura.png")
+    logo = discord.File("./images/astolfo.jpg", filename="astolfo.jpg")
+
     if isinstance(ctx.channel, discord.DMChannel) or (
         isinstance(ctx.channel, discord.TextChannel) and ctx.channel.is_nsfw()
     ):
-        response = requests.get(f"{api}/api/{query}")
+        response = requests.get(f"{api}/{query}")
         data = response.json()
         status = data.get("Status")
 
@@ -97,15 +109,13 @@ async def find(ctx, query):
                 description="Hey, hey, Master! Something's up, let's go check it out!",
             )
             embed.add_field(name="Internal Server Error", value="500: No femboys found")
-            embed.set_thumbnail(
-                url="https://i.pinimg.com/736x/50/77/1f/50771f45b1c015cfbb8b0853ba7b8521.jpg"
-            )
+            embed.set_thumbnail(url="attachment://astolfo.jpg")
             embed.set_footer(
                 text="Made by FireStreaker2",
-                icon_url="https://media.discordapp.net/attachments/739313608923807844/1096169389339967618/image0.jpg",
+                icon_url="attachment://gura.png",
             )
 
-            await ctx.respond(embed=embed)
+            await ctx.respond(embed=embed, files=[pfp, logo])
             return
 
         image = data.get("URL")
@@ -117,15 +127,13 @@ async def find(ctx, query):
                 description="Hey, hey, Master! Something's up, let's go check it out!",
             )
             embed.add_field(name="Internal Server Error", value="500: No femboys found")
-            embed.set_thumbnail(
-                url="https://i.pinimg.com/736x/50/77/1f/50771f45b1c015cfbb8b0853ba7b8521.jpg"
-            )
+            embed.set_thumbnail(url="attachment://astolfo.jpg")
             embed.set_footer(
                 text="Made by FireStreaker2",
-                icon_url="https://media.discordapp.net/attachments/739313608923807844/1096169389339967618/image0.jpg",
+                icon_url="attachment://gura.png",
             )
 
-            await ctx.respond(embed=embed)
+            await ctx.respond(embed=embed, files=[pfp, logo])
             return
 
         embed = discord.Embed(title="Femboy Found!")
@@ -134,10 +142,10 @@ async def find(ctx, query):
         embed.set_image(url=image)
         embed.set_footer(
             text="Made by FireStreaker2",
-            icon_url="https://media.discordapp.net/attachments/739313608923807844/1096169389339967618/image0.jpg",
+            icon_url="attachment://gura.png",
         )
 
-        await ctx.respond(embed=embed)
+        await ctx.respond(embed=embed, file=pfp)
         global femboys
         femboys += 1
 
@@ -146,23 +154,24 @@ async def find(ctx, query):
             title="Error",
             description="This channel is not marked as NSFW. In order to succesfully run this command, please mark this channel as NSFW and rerun this command.",
         )
-        embed.set_thumbnail(
-            url="https://i.pinimg.com/736x/50/77/1f/50771f45b1c015cfbb8b0853ba7b8521.jpg"
-        )
+        embed.set_thumbnail(url="attachment://astolfo.jpg")
         embed.set_footer(
             text="Made by FireStreaker2",
-            icon_url="https://media.discordapp.net/attachments/739313608923807844/1096169389339967618/image0.jpg",
+            icon_url="attachment://gura.png",
         )
 
-        await ctx.respond(embed=embed)
+        await ctx.respond(embed=embed, files=[pfp, logo])
         return
 
 
-@bot.slash_command(help="About FemboyFinderBot")
+@bot.slash_command(description="About FemboyFinderBot")
 async def about(ctx):
+    pfp = discord.File("./images/gura.png", filename="gura.png")
+    logo = discord.File("./images/astolfo.jpg", filename="astolfo.jpg")
+
     embed = discord.Embed(
         title="About",
-        description="FemboyFinderBot is a bot developed by firestreaker2, using Discord.py. It works by querying the Danbooru API for images given the value provided by the end user, and randomly selects one.",
+        description="FemboyFinderBot is a bot developed by firestreaker2, using Pycord. It works by querying the Danbooru API for images given the value provided by the end user, and randomly selects one.",
     )
     embed.add_field(
         name="Support Server",
@@ -173,19 +182,20 @@ async def about(ctx):
         value="For more info, you may refer to the [GitHub Page](https://github.com/FireStreaker2/FemboyFinderBot).",
         inline=False,
     )
-    embed.set_thumbnail(
-        url="https://i.pinimg.com/736x/50/77/1f/50771f45b1c015cfbb8b0853ba7b8521.jpg"
-    )
+    embed.set_thumbnail(url="attachment://astolfo.jpg")
     embed.set_footer(
         text="Made by FireStreaker2",
-        icon_url="https://media.discordapp.net/attachments/739313608923807844/1096169389339967618/image0.jpg",
+        icon_url="attachment://gura.png",
     )
 
-    await ctx.respond(embed=embed)
+    await ctx.respond(embed=embed, files=[pfp, logo])
 
 
-@bot.slash_command(help="Bot Statistics")
+@bot.slash_command(description="Bot Statistics")
 async def stats(ctx):
+    pfp = discord.File("./images/gura.png", filename="gura.png")
+    logo = discord.File("./images/astolfo.jpg", filename="astolfo.jpg")
+
     embed = discord.Embed(title="Stats")
     embed.add_field(
         name="Guilds",
@@ -197,23 +207,24 @@ async def stats(ctx):
         value=f"I have found {femboys} femboys this month.",
         inline=False,
     )
-    embed.set_thumbnail(
-        url="https://i.pinimg.com/736x/50/77/1f/50771f45b1c015cfbb8b0853ba7b8521.jpg"
-    )
+    embed.set_thumbnail(url="attachment://astolfo.jpg")
     embed.set_footer(
         text="Made by FireStreaker2",
-        icon_url="https://media.discordapp.net/attachments/739313608923807844/1096169389339967618/image0.jpg",
+        icon_url="attachment://gura.png",
     )
 
-    await ctx.respond(embed=embed)
+    await ctx.respond(embed=embed, files=[pfp, logo])
 
 
 ## custom help message
 bot.remove_command("help")
 
 
-@bot.slash_command(help="Send a help message")
+@bot.slash_command(description="Send a help message")
 async def help(ctx):
+    pfp = discord.File("./images/gura.png", filename="gura.png")
+    logo = discord.File("./images/astolfo.jpg", filename="astolfo.jpg")
+
     embed = discord.Embed(title="Help", description="Help for FemboyFinderBot")
     embed.add_field(name="Prefix", value="``/``", inline=False)
     embed.add_field(
@@ -236,15 +247,13 @@ async def help(ctx):
         name="Support Server",
         value="You may join our support server [here](https://discord.gg/bruQhB8Eg5).",
     )
-    embed.set_thumbnail(
-        url="https://i.pinimg.com/736x/50/77/1f/50771f45b1c015cfbb8b0853ba7b8521.jpg"
-    )
+    embed.set_thumbnail(url="attachment://astolfo.jpg")
     embed.set_footer(
         text="Made by FireStreaker2",
-        icon_url="https://media.discordapp.net/attachments/739313608923807844/1096169389339967618/image0.jpg",
+        icon_url="attachment://gura.png",
     )
 
-    await ctx.respond(embed=embed)
+    await ctx.respond(embed=embed, files=[pfp, logo])
 
 
 bot.run(TOKEN)
