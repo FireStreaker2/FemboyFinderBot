@@ -10,19 +10,17 @@ import datetime
 
 # environment variables
 load_dotenv()
-TOKEN = os.getenv("TOKEN")
 femboys = int(os.getenv("FEMBOY_COUNT", 0))
 
-# initial setup
 config = {
+    "TOKEN": os.getenv("TOKEN"),
     "Status": os.getenv("STATUS", "Femboys"),
     "MonthlyReset": os.getenv("MONTHLY_RESET", False),
+    "API": os.getenv("API", "https://femboyfinder.firestreaker2.gq/api"),
+    "Intents": discord.Intents.default(),
 }
 
-intents = discord.Intents.default()
-bot = commands.Bot(intents=intents)
-
-api = os.getenv("API", "https://femboyfinder.firestreaker2.gq/api")
+bot = commands.Bot(intents=config["Intents"])
 
 
 # events
@@ -39,9 +37,14 @@ async def on_ready():
 
 @bot.event
 async def on_guild_join(guild):
+    await asyncio.sleep(5)
+
+    pfp = discord.File("./images/gura.png", filename="gura.png")
+    logo = discord.File("./images/astolfo.jpg", filename="astolfo.jpg")
+
     try:
         channel = guild.system_channel
-        embed = discord.Embed(
+        embed = discord.Embed(  
             title="Hello!",
             description="Yahoo! My name is Astolfo! Rider Class! And, and...umm, nice to meet you!",
         )
@@ -92,13 +95,15 @@ async def check_reset():
 # commands
 @bot.slash_command(description="Find a femboy near you!")
 async def find(ctx, query):
+    await ctx.defer()
+
     pfp = discord.File("./images/gura.png", filename="gura.png")
     logo = discord.File("./images/astolfo.jpg", filename="astolfo.jpg")
 
     if isinstance(ctx.channel, discord.DMChannel) or (
         isinstance(ctx.channel, discord.TextChannel) and ctx.channel.is_nsfw()
     ):
-        response = requests.get(f"{api}/{query}")
+        response = requests.get(f"{config['API']}/{query}")
         data = response.json()
         status = data.get("Status")
 
@@ -166,6 +171,8 @@ async def find(ctx, query):
 
 @bot.slash_command(description="About FemboyFinderBot")
 async def about(ctx):
+    await ctx.defer()
+
     pfp = discord.File("./images/gura.png", filename="gura.png")
     logo = discord.File("./images/astolfo.jpg", filename="astolfo.jpg")
 
@@ -193,6 +200,8 @@ async def about(ctx):
 
 @bot.slash_command(description="Bot Statistics")
 async def stats(ctx):
+    await ctx.defer()
+
     pfp = discord.File("./images/gura.png", filename="gura.png")
     logo = discord.File("./images/astolfo.jpg", filename="astolfo.jpg")
 
@@ -222,6 +231,8 @@ bot.remove_command("help")
 
 @bot.slash_command(description="Send a help message")
 async def help(ctx):
+    await ctx.defer()
+
     pfp = discord.File("./images/gura.png", filename="gura.png")
     logo = discord.File("./images/astolfo.jpg", filename="astolfo.jpg")
 
@@ -256,4 +267,4 @@ async def help(ctx):
     await ctx.respond(embed=embed, files=[pfp, logo])
 
 
-bot.run(TOKEN)
+bot.run(config["TOKEN"])
