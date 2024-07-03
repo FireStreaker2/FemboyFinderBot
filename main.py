@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 import os
 import requests
 import json
-import datetime
+import schedule
+from datetime import datetime
 
 # environment variables
 load_dotenv()
@@ -15,7 +16,7 @@ femboys = int(os.getenv("FEMBOY_COUNT", 0))
 config = {
     "TOKEN": os.getenv("TOKEN"),
     "Status": os.getenv("STATUS", "Femboys"),
-    "MonthlyReset": os.getenv("MONTHLY_RESET", False),
+    "MonthlyReset": bool(os.getenv("MONTHLY_RESET", False)),
     "API": os.getenv("API", "https://femboyfinder.firestreaker2.gq/api"),
     "Intents": discord.Intents.default(),
 }
@@ -27,6 +28,11 @@ bot = commands.Bot(intents=config["Intents"])
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user} ({bot.user.id})")
+    print(f"Using config:\n{config}")
+
+    if config["MonthlyReset"] == True:
+        check_reset.start()
+
     await bot.change_presence(
         status=discord.Status.dnd,
         activity=discord.Activity(
@@ -44,7 +50,7 @@ async def on_guild_join(guild):
 
     try:
         channel = guild.system_channel
-        embed = discord.Embed(  
+        embed = discord.Embed(
             title="Hello!",
             description="Yahoo! My name is Astolfo! Rider Class! And, and...umm, nice to meet you!",
         )
@@ -85,15 +91,19 @@ async def on_command_error(ctx, error):
 
 @tasks.loop(minutes=1)
 async def check_reset():
-    if config["MonthlyReset"] == True:
-        now = datetime.datetime.now()
-        if now.day == 1 and now.hour == 0 and now.minute == 0:
-            global femboys
-            femboys = 0
+    if datetime.now().day == 1:
+        global femboys
+        femboys = 0
 
 
 # commands
-@bot.slash_command(description="Find a femboy near you!")
+@bot.slash_command(
+    integration_types={
+        discord.IntegrationType.guild_install,
+        discord.IntegrationType.user_install,
+    },
+    description="Find a femboy near you!",
+)
 async def find(ctx, query):
     await ctx.defer()
 
@@ -113,7 +123,7 @@ async def find(ctx, query):
                 title="An Error Occurred",
                 description="Hey, hey, Master! Something's up, let's go check it out!",
             )
-            embed.add_field(name="Internal Server Error", value="500: No femboys found")
+            embed.add_field(name="Internal Server Error", value="404: No femboys found")
             embed.set_thumbnail(url="attachment://astolfo.jpg")
             embed.set_footer(
                 text="Made by FireStreaker2",
@@ -131,7 +141,7 @@ async def find(ctx, query):
                 title="An Error Occurred",
                 description="Hey, hey, Master! Something's up, let's go check it out!",
             )
-            embed.add_field(name="Internal Server Error", value="500: No femboys found")
+            embed.add_field(name="Internal Server Error", value="404: No femboys found")
             embed.set_thumbnail(url="attachment://astolfo.jpg")
             embed.set_footer(
                 text="Made by FireStreaker2",
@@ -169,7 +179,13 @@ async def find(ctx, query):
         return
 
 
-@bot.slash_command(description="About FemboyFinderBot")
+@bot.slash_command(
+    integration_types={
+        discord.IntegrationType.guild_install,
+        discord.IntegrationType.user_install,
+    },
+    description="About FemboyFinderBot",
+)
 async def about(ctx):
     await ctx.defer()
 
@@ -198,7 +214,13 @@ async def about(ctx):
     await ctx.respond(embed=embed, files=[pfp, logo])
 
 
-@bot.slash_command(description="Bot Statistics")
+@bot.slash_command(
+    integration_types={
+        discord.IntegrationType.guild_install,
+        discord.IntegrationType.user_install,
+    },
+    description="Bot Statistics",
+)
 async def stats(ctx):
     await ctx.defer()
 
@@ -229,7 +251,13 @@ async def stats(ctx):
 bot.remove_command("help")
 
 
-@bot.slash_command(description="Send a help message")
+@bot.slash_command(
+    integration_types={
+        discord.IntegrationType.guild_install,
+        discord.IntegrationType.user_install,
+    },
+    description="Send a help message",
+)
 async def help(ctx):
     await ctx.defer()
 
@@ -252,7 +280,7 @@ async def help(ctx):
         name="/stats", value="Sends bot statistics.\nExample: ``/stats``", inline=False
     )
     embed.add_field(
-        name="/help", value="Sends this message!\nExamle: ``/help``", inline=False
+        name="/help", value="Sends this message!\nExample: ``/help``", inline=False
     )
     embed.add_field(
         name="Support Server",
