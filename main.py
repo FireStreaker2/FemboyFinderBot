@@ -2,11 +2,10 @@
 import discord
 from discord.ext import commands, tasks
 import asyncio
-from dotenv import load_dotenv
+import aiohttp
 import os
-import requests
 import json
-import schedule
+from dotenv import load_dotenv
 from datetime import datetime
 
 # environment variables
@@ -17,11 +16,21 @@ config = {
     "TOKEN": os.getenv("TOKEN"),
     "Status": os.getenv("STATUS", "Femboys"),
     "MonthlyReset": bool(os.getenv("MONTHLY_RESET", False)),
+    "ResetStatus": False,
     "API": os.getenv("API", "https://femboyfinder.firestreaker2.gq/api"),
     "Intents": discord.Intents.default(),
 }
 
 bot = commands.Bot(intents=config["Intents"])
+
+
+async def fetch(url):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            if response.status == 200:
+                return await response.json()
+            else:
+                response.raise_for_status()
 
 
 # events
@@ -91,9 +100,15 @@ async def on_command_error(ctx, error):
 
 @tasks.loop(minutes=1)
 async def check_reset():
-    if datetime.now().day == 1:
+    if datetime.now().day == 1 and config["ResetStatus"] != True:
         global femboys
         femboys = 0
+        config["ResetStatus"] = True
+
+        print("Femboy count has been reset!")
+
+    if datetime.now().day == 2:
+        config["ResetStatus"] = False
 
 
 # commands
@@ -113,12 +128,11 @@ async def find(ctx, query):
     if isinstance(ctx.channel, discord.DMChannel) or (
         isinstance(ctx.channel, discord.TextChannel) and ctx.channel.is_nsfw()
     ):
-        response = requests.get(f"{config['API']}/{query}")
-        data = response.json()
+        data = await fetch(f"{config['API']}/{query}")
         status = data.get("Status")
 
         # error handling
-        if response.status_code != 200 or status != 200:
+        if status != 200:
             embed = discord.Embed(
                 title="An Error Occurred",
                 description="Hey, hey, Master! Something's up, let's go check it out!",

@@ -1,5 +1,4 @@
-git+https://github.com/Pycord-Development/pycord
+py-cord
 asyncio
 python-dotenv
-requests
-schedule
+aiohttp
