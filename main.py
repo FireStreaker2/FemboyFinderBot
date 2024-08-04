@@ -1,31 +1,30 @@
 # packages
 import discord
 from discord.ext import commands, tasks
-import asyncio
-import aiohttp
-import os
-import json
+from asyncio import sleep
+from aiohttp import ClientSession
+from os import getenv
 from dotenv import load_dotenv
 from datetime import datetime
 
 # environment variables
 load_dotenv()
-femboys = int(os.getenv("FEMBOY_COUNT", 0))
 
 config = {
-    "TOKEN": os.getenv("TOKEN"),
-    "Status": os.getenv("STATUS", "Femboys"),
-    "MonthlyReset": bool(os.getenv("MONTHLY_RESET", False)),
-    "ResetStatus": False,
-    "API": os.getenv("API", "https://femboyfinder.firestreaker2.gq/api"),
-    "Intents": discord.Intents.default(),
+    "token": getenv("TOKEN"),
+    "status": getenv("STATUS", "Femboys"),
+    "femboys": int(getenv("FEMBOY_COUNT", 0)),
+    "monthlyReset": bool(getenv("MONTHLY_RESET", False)),
+    "resetStatus": False,
+    "api": getenv("API", "https://femboyfinder.firestreaker2.gq/api"),
+    "intents": discord.Intents.default(),
 }
 
-bot = commands.Bot(intents=config["Intents"])
+bot = commands.Bot(intents=config["intents"])
 
 
 async def fetch(url):
-    async with aiohttp.ClientSession() as session:
+    async with ClientSession() as session:
         async with session.get(url) as response:
             if response.status == 200:
                 return await response.json()
@@ -39,20 +38,20 @@ async def on_ready():
     print(f"Logged in as {bot.user} ({bot.user.id})")
     print(f"Using config:\n{config}")
 
-    if config["MonthlyReset"] == True:
+    if config["monthlyReset"] == True:
         check_reset.start()
 
     await bot.change_presence(
         status=discord.Status.dnd,
         activity=discord.Activity(
-            type=discord.ActivityType.watching, name=config["Status"]
+            type=discord.ActivityType.watching, name=config["status"]
         ),
     )
 
 
 @bot.event
 async def on_guild_join(guild):
-    await asyncio.sleep(5)
+    await sleep(5)
 
     pfp = discord.File("./images/gura.png", filename="gura.png")
     logo = discord.File("./images/astolfo.jpg", filename="astolfo.jpg")
@@ -100,14 +99,17 @@ async def on_command_error(ctx, error):
 
 @tasks.loop(minutes=1)
 async def check_reset():
-    if datetime.now().day == 1 and config["ResetStatus"] != True:
-        global femboys
-        femboys = 0
+    if (
+        datetime.now().day == 1
+        and config["resetStatus"] != True
+        and not getenv("FEMBOY_COUNT")
+    ):
+        config["femboys"] = 0
         config["ResetStatus"] = True
 
         print("Femboy count has been reset!")
 
-    if datetime.now().day == 2:
+    elif datetime.now().day == 2 and config["ResetStatus"]:
         config["ResetStatus"] = False
 
 
@@ -128,7 +130,7 @@ async def find(ctx, query):
     if isinstance(ctx.channel, discord.DMChannel) or (
         isinstance(ctx.channel, discord.TextChannel) and ctx.channel.is_nsfw()
     ):
-        data = await fetch(f"{config['API']}/{query}")
+        data = await fetch(f"{config['api']}/{query}")
         status = data.get("Status")
 
         # error handling
@@ -175,8 +177,7 @@ async def find(ctx, query):
         )
 
         await ctx.respond(embed=embed, file=pfp)
-        global femboys
-        femboys += 1
+        config["femboys"] += 1
 
     else:
         embed = discord.Embed(
@@ -249,7 +250,7 @@ async def stats(ctx):
     )
     embed.add_field(
         name="Femboys",
-        value=f"I have found {femboys} femboys this month.",
+        value=f"I have found {config['femboys']} femboys this month.",
         inline=False,
     )
     embed.set_thumbnail(url="attachment://astolfo.jpg")
@@ -309,4 +310,4 @@ async def help(ctx):
     await ctx.respond(embed=embed, files=[pfp, logo])
 
 
-bot.run(config["TOKEN"])
+bot.run(config["token"])
