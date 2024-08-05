@@ -131,7 +131,7 @@ async def find(ctx, query):
         isinstance(ctx.channel, discord.TextChannel) and ctx.channel.is_nsfw()
     ):
         try:
-          data = await fetch(f"{config["api"]}/{query}")
+          data = await fetch(f"{config['api']}/{query}")
 
         except:
             embed = discord.Embed(
@@ -235,7 +235,7 @@ async def stats(ctx):
     )
     embed.add_field(
         name="Femboys",
-        value=f"I have found {config["femboys"]} femboys {"this month" if config["monthlyReset"] else "so far"}.",
+        value=f"I have found {config['femboys']} femboys {'this month' if config['monthlyReset'] else 'so far'}.",
         inline=False,
     )
     embed.set_thumbnail(url="attachment://astolfo.jpg")
