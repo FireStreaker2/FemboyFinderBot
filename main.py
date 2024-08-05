@@ -86,7 +86,7 @@ async def on_guild_join(guild):
 
 
 @bot.event
-async def on_command_error(ctx, error):
+async def on_application_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.respond(
             "Hm? Is it tough not having any common sense? Well, I guess so. But you know, there are things that only I can understand because I lack common sense. (you forgot to add all the arguments)"
@@ -130,11 +130,10 @@ async def find(ctx, query):
     if isinstance(ctx.channel, discord.DMChannel) or (
         isinstance(ctx.channel, discord.TextChannel) and ctx.channel.is_nsfw()
     ):
-        data = await fetch(f"{config['api']}/{query}")
-        status = data.get("Status")
+        try:
+          data = await fetch(f"{config["api"]}/{query}")
 
-        # error handling
-        if status != 200:
+        except:
             embed = discord.Embed(
                 title="An Error Occurred",
                 description="Hey, hey, Master! Something's up, let's go check it out!",
@@ -149,27 +148,13 @@ async def find(ctx, query):
             await ctx.respond(embed=embed, files=[pfp, logo])
             return
 
-        image = data.get("URL")
-        dimensions = data.get("Dimensions")
+        image = data.get("url")
+        tags = data.get("tags")
+        source = data.get("source")
 
-        if dimensions == None:
-            embed = discord.Embed(
-                title="An Error Occurred",
-                description="Hey, hey, Master! Something's up, let's go check it out!",
-            )
-            embed.add_field(name="Internal Server Error", value="404: No femboys found")
-            embed.set_thumbnail(url="attachment://astolfo.jpg")
-            embed.set_footer(
-                text="Made by FireStreaker2",
-                icon_url="attachment://gura.png",
-            )
-
-            await ctx.respond(embed=embed, files=[pfp, logo])
-            return
-
-        embed = discord.Embed(title="Femboy Found!")
+        embed = discord.Embed(title="Femboy Found!", url=source)
         embed.add_field(name="Query", value=query, inline=False)
-        embed.add_field(name="Dimensions", value=dimensions, inline=False)
+        embed.add_field(name="Tags", value=tags, inline=False)
         embed.set_image(url=image)
         embed.set_footer(
             text="Made by FireStreaker2",
@@ -209,7 +194,7 @@ async def about(ctx):
 
     embed = discord.Embed(
         title="About",
-        description="FemboyFinderBot is a bot developed by firestreaker2, using Pycord. It works by querying the Danbooru API for images given the value provided by the end user, and randomly selects one.",
+        description="FemboyFinderBot is a bot developed by firestreaker2, using Pycord. It works by querying the FemboyFinder API for images given the value provided by the end user, and randomly selects one.",
     )
     embed.add_field(
         name="Support Server",
@@ -217,7 +202,7 @@ async def about(ctx):
     )
     embed.add_field(
         name="More Resources",
-        value="For more info, you may refer to the [GitHub Page](https://github.com/FireStreaker2/FemboyFinderBot).",
+        value="For more info, you may refer to the [GitHub Page](https://github.com/FireStreaker2/FemboyFinderBot) or the [FemboyFinder API](https://github.com/FireStreaker2/FemboyFinder).",
         inline=False,
     )
     embed.set_thumbnail(url="attachment://astolfo.jpg")
@@ -250,7 +235,7 @@ async def stats(ctx):
     )
     embed.add_field(
         name="Femboys",
-        value=f"I have found {config['femboys']} femboys this month.",
+        value=f"I have found {config["femboys"]} femboys {"this month" if config["monthlyReset"] else "so far"}.",
         inline=False,
     )
     embed.set_thumbnail(url="attachment://astolfo.jpg")
@@ -283,7 +268,7 @@ async def help(ctx):
     embed.add_field(name="Prefix", value="``/``", inline=False)
     embed.add_field(
         name="/find [query]",
-        value="Find a femboy!\nExample: ``/find astolfo``\n\n> Note that if you are trying to search with a term that has more than one word, use a ``_`` instead of a space.\n> Example: ``/find felix_argyle``",
+        value="Find a femboy!\nExample: ``/find astolfo``\n\n> Note that if you are trying to search with a term that has more than one word, use a ``_`` instead of a space. If you are searching for multiple tags, then use a space between them.\n> Example: ``/find felix_argyle``\n Example 2: ``/find astolfo stockings``",
         inline=False,
     )
     embed.add_field(
