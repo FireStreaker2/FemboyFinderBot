@@ -36,7 +36,10 @@ async def fetch(url):
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user} ({bot.user.id})")
-    print(f"Using config:\n{config}")
+
+    copy = config.copy()
+    copy["token"] = f"{copy['token'].split(".")[0]}.*******"
+    print(f"Using config:\n{copy}")
 
     if config["monthlyReset"] == True:
         check_reset.start()
@@ -99,11 +102,7 @@ async def on_application_command_error(ctx, error):
 
 @tasks.loop(minutes=1)
 async def check_reset():
-    if (
-        datetime.now().day == 1
-        and config["resetStatus"] != True
-        and not getenv("FEMBOY_COUNT")
-    ):
+    if datetime.now().day == 1 and config["resetStatus"] != True:
         config["femboys"] = 0
         config["ResetStatus"] = True
 
@@ -131,7 +130,7 @@ async def find(ctx, query):
         isinstance(ctx.channel, discord.TextChannel) and ctx.channel.is_nsfw()
     ):
         try:
-          data = await fetch(f"{config['api']}/{query}")
+            data = await fetch(f"{config['api']}/{query}")
 
         except:
             embed = discord.Embed(
@@ -268,7 +267,7 @@ async def help(ctx):
     embed.add_field(name="Prefix", value="``/``", inline=False)
     embed.add_field(
         name="/find [query]",
-        value="Find a femboy!\nExample: ``/find astolfo``\n\n> Note that if you are trying to search with a term that has more than one word, use a ``_`` instead of a space. If you are searching for multiple tags, then use a space between them.\n> Example: ``/find felix_argyle``\n Example 2: ``/find astolfo stockings``",
+        value="Find a femboy!\nExample: ``/find astolfo``\n\n> Note that if you are trying to search with a term that has more than one word, use a ``_`` instead of a space. If you are searching for multiple tags, then use a space between them.\n> Example: ``/find felix_argyle``\n> Example 2: ``/find astolfo stockings``",
         inline=False,
     )
     embed.add_field(
