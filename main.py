@@ -38,7 +38,7 @@ async def on_ready():
     print(f"Logged in as {bot.user} ({bot.user.id})")
 
     copy = config.copy()
-    copy["token"] = f"{copy['token'].split(".")[0]}.*******"
+    copy["token"] = f"{copy['token'].split('.')[0]}.*******"
     print(f"Using config:\n{copy}")
 
     if config["monthlyReset"] == True:
