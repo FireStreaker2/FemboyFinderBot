@@ -104,12 +104,12 @@ async def on_application_command_error(ctx, error):
 async def check_reset():
     if datetime.now().day == 1 and config["resetStatus"] != True:
         config["femboys"] = 0
-        config["ResetStatus"] = True
+        config["resetStatus"] = True
 
         print("Femboy count has been reset!")
 
-    elif datetime.now().day == 2 and config["ResetStatus"]:
-        config["ResetStatus"] = False
+    elif datetime.now().day == 2 and config["resetStatus"]:
+        config["resetStatus"] = False
 
 
 # commands
