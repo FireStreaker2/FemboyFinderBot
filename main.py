@@ -6,6 +6,7 @@ from aiohttp import ClientSession
 from os import getenv
 from dotenv import load_dotenv
 from datetime import datetime
+import redis
 
 # environment variables
 load_dotenv()
@@ -20,7 +21,14 @@ config = {
     "intents": discord.Intents.default(),
 }
 
-bot = commands.Bot(intents=config["intents"])
+bot = commands.AutoShardedBot(intents=config["intents"])
+
+r = redis.Redis(host="localhost", port=6379, db=0)
+print("Connected to Redis!")
+
+if config["femboys"]:
+    r.set("femboys", config["femboys"])
+    print(f"Femboy count set to {config['femboys']}\n")
 
 
 async def fetch(url):
@@ -36,6 +44,7 @@ async def fetch(url):
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user} ({bot.user.id})")
+    print(f"Shards: {bot.shard_count}")
 
     copy = config.copy()
     copy["token"] = f"{copy['token'].split('.')[0]}.*******"
@@ -103,7 +112,7 @@ async def on_application_command_error(ctx, error):
 @tasks.loop(minutes=1)
 async def check_reset():
     if datetime.now().day == 1 and config["resetStatus"] != True:
-        config["femboys"] = 0
+        r.set("femboys", 0)
         config["resetStatus"] = True
 
         print("Femboy count has been reset!")
@@ -161,7 +170,7 @@ async def find(ctx, query):
         )
 
         await ctx.respond(embed=embed, file=pfp)
-        config["femboys"] += 1
+        r.incr("femboys")
 
     else:
         embed = discord.Embed(
@@ -234,7 +243,12 @@ async def stats(ctx):
     )
     embed.add_field(
         name="Femboys",
-        value=f"I have found {config['femboys']} femboys {'this month' if config['monthlyReset'] else 'so far'}.",
+        value=f"I have found {int(r.get('femboys') or 0)} femboys {'this month' if config['monthlyReset'] else 'so far'}.",
+        inline=False,
+    )
+    embed.add_field(
+        name="Shard",
+        value=f"Shard: {ctx.guild.shard_id}/{bot.shard_count}\nPing: {round(bot.latency * 1000)}ms",
         inline=False,
     )
     embed.set_thumbnail(url="attachment://astolfo.jpg")
