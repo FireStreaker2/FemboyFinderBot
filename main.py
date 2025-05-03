@@ -6,7 +6,7 @@ from aiohttp import ClientSession
 from os import getenv
 from dotenv import load_dotenv
 from datetime import datetime
-import redis
+import redis.asyncio as redis
 
 # environment variables
 load_dotenv()
@@ -25,10 +25,6 @@ bot = commands.AutoShardedBot(intents=config["intents"])
 
 r = redis.Redis(host="localhost", port=6379, db=0)
 print("Connected to Redis!")
-
-if config["femboys"]:
-    r.set("femboys", config["femboys"])
-    print(f"Femboy count set to {config['femboys']}\n")
 
 
 async def fetch(url):
@@ -53,6 +49,10 @@ async def on_ready():
     if config["monthlyReset"] == True:
         check_reset.start()
 
+    if config["femboys"]:
+        await r.set("femboys", config["femboys"])
+        print(f"Femboy count set to {config['femboys']}\n")
+
     await bot.change_presence(
         status=discord.Status.dnd,
         activity=discord.Activity(
@@ -64,9 +64,6 @@ async def on_ready():
 @bot.event
 async def on_guild_join(guild):
     await sleep(5)
-
-    pfp = discord.File("./images/gura.png", filename="gura.png")
-    logo = discord.File("./images/astolfo.jpg", filename="astolfo.jpg")
 
     try:
         channel = guild.system_channel
@@ -86,13 +83,15 @@ async def on_guild_join(guild):
             name="Notice",
             value="Please note that I may occasionally send NSFW content.",
         )
-        embed.set_thumbnail(url="attachment://astolfo.jpg")
+        embed.set_thumbnail(
+            url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg"
+        )
         embed.set_footer(
             text="Made by FireStreaker2",
-            icon_url="attachment://gura.png",
+            icon_url="https://raw.githubusercontent.com/FireStreaker2/firestreaker2.gq/refs/heads/main/public/pfp.webp",
         )
 
-        await channel.send(embed=embed, files=[pfp, logo])
+        await channel.send(embed=embed)
     except Exception as error:
         print(f"Unable to send welcome message: {error}")
 
@@ -112,7 +111,7 @@ async def on_application_command_error(ctx, error):
 @tasks.loop(minutes=1)
 async def check_reset():
     if datetime.now().day == 1 and config["resetStatus"] != True:
-        r.set("femboys", 0)
+        await r.set("femboys", 0)
         config["resetStatus"] = True
 
         print("Femboy count has been reset!")
@@ -132,9 +131,6 @@ async def check_reset():
 async def find(ctx, query):
     await ctx.defer()
 
-    pfp = discord.File("./images/gura.png", filename="gura.png")
-    logo = discord.File("./images/astolfo.jpg", filename="astolfo.jpg")
-
     if isinstance(ctx.channel, discord.DMChannel) or (
         isinstance(ctx.channel, discord.TextChannel) and ctx.channel.is_nsfw()
     ):
@@ -147,13 +143,15 @@ async def find(ctx, query):
                 description="Hey, hey, Master! Something's up, let's go check it out!",
             )
             embed.add_field(name="Internal Server Error", value="404: No femboys found")
-            embed.set_thumbnail(url="attachment://astolfo.jpg")
+            embed.set_thumbnail(
+                url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg"
+            )
             embed.set_footer(
                 text="Made by FireStreaker2",
-                icon_url="attachment://gura.png",
+                icon_url="https://raw.githubusercontent.com/FireStreaker2/firestreaker2.gq/refs/heads/main/public/pfp.webp",
             )
 
-            await ctx.respond(embed=embed, files=[pfp, logo])
+            await ctx.respond(embed=embed)
             return
 
         image = data.get("url")
@@ -166,24 +164,26 @@ async def find(ctx, query):
         embed.set_image(url=image)
         embed.set_footer(
             text="Made by FireStreaker2",
-            icon_url="attachment://gura.png",
+            icon_url="https://raw.githubusercontent.com/FireStreaker2/firestreaker2.gq/refs/heads/main/public/pfp.webp",
         )
 
-        await ctx.respond(embed=embed, file=pfp)
-        r.incr("femboys")
+        await ctx.respond(embed=embed)
+        await r.incr("femboys")
 
     else:
         embed = discord.Embed(
             title="Error",
             description="This channel is not marked as NSFW. In order to succesfully run this command, please mark this channel as NSFW and rerun this command.",
         )
-        embed.set_thumbnail(url="attachment://astolfo.jpg")
+        embed.set_thumbnail(
+            url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg"
+        )
         embed.set_footer(
             text="Made by FireStreaker2",
-            icon_url="attachment://gura.png",
+            icon_url="https://raw.githubusercontent.com/FireStreaker2/firestreaker2.gq/refs/heads/main/public/pfp.webp",
         )
 
-        await ctx.respond(embed=embed, files=[pfp, logo])
+        await ctx.respond(embed=embed)
         return
 
 
@@ -196,9 +196,6 @@ async def find(ctx, query):
 )
 async def about(ctx):
     await ctx.defer()
-
-    pfp = discord.File("./images/gura.png", filename="gura.png")
-    logo = discord.File("./images/astolfo.jpg", filename="astolfo.jpg")
 
     embed = discord.Embed(
         title="About",
@@ -213,13 +210,15 @@ async def about(ctx):
         value="For more info, you may refer to the [GitHub Page](https://github.com/FireStreaker2/FemboyFinderBot) or the [FemboyFinder API](https://github.com/FireStreaker2/FemboyFinder).",
         inline=False,
     )
-    embed.set_thumbnail(url="attachment://astolfo.jpg")
+    embed.set_thumbnail(
+        url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg"
+    )
     embed.set_footer(
         text="Made by FireStreaker2",
-        icon_url="attachment://gura.png",
+        icon_url="https://raw.githubusercontent.com/FireStreaker2/firestreaker2.gq/refs/heads/main/public/pfp.webp",
     )
 
-    await ctx.respond(embed=embed, files=[pfp, logo])
+    await ctx.respond(embed=embed)
 
 
 @bot.slash_command(
@@ -232,9 +231,6 @@ async def about(ctx):
 async def stats(ctx):
     await ctx.defer()
 
-    pfp = discord.File("./images/gura.png", filename="gura.png")
-    logo = discord.File("./images/astolfo.jpg", filename="astolfo.jpg")
-
     embed = discord.Embed(title="Stats")
     embed.add_field(
         name="Guilds",
@@ -243,21 +239,23 @@ async def stats(ctx):
     )
     embed.add_field(
         name="Femboys",
-        value=f"I have found {int(r.get('femboys') or 0)} femboys {'this month' if config['monthlyReset'] else 'so far'}.",
+        value=f"I have found {int(await r.get("femboys") or 0)} femboys {'this month' if config['monthlyReset'] else 'so far'}.",
         inline=False,
     )
     embed.add_field(
         name="Shard",
-        value=f"Shard: {ctx.guild.shard_id}/{bot.shard_count}\nPing: {round(bot.latency * 1000)}ms",
+        value=f"Shard: {ctx.guild.shard_id + 1}/{bot.shard_count}\nPing: {round(bot.latency * 1000)}ms",
         inline=False,
     )
-    embed.set_thumbnail(url="attachment://astolfo.jpg")
+    embed.set_thumbnail(
+        url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg"
+    )
     embed.set_footer(
         text="Made by FireStreaker2",
-        icon_url="attachment://gura.png",
+        icon_url="https://raw.githubusercontent.com/FireStreaker2/firestreaker2.gq/refs/heads/main/public/pfp.webp",
     )
 
-    await ctx.respond(embed=embed, files=[pfp, logo])
+    await ctx.respond(embed=embed)
 
 
 ## custom help message
@@ -273,9 +271,6 @@ bot.remove_command("help")
 )
 async def help(ctx):
     await ctx.defer()
-
-    pfp = discord.File("./images/gura.png", filename="gura.png")
-    logo = discord.File("./images/astolfo.jpg", filename="astolfo.jpg")
 
     embed = discord.Embed(title="Help", description="Help for FemboyFinderBot")
     embed.add_field(name="Prefix", value="``/``", inline=False)
@@ -299,13 +294,15 @@ async def help(ctx):
         name="Support Server",
         value="You may join our support server [here](https://discord.gg/bruQhB8Eg5).",
     )
-    embed.set_thumbnail(url="attachment://astolfo.jpg")
+    embed.set_thumbnail(
+        url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg"
+    )
     embed.set_footer(
         text="Made by FireStreaker2",
-        icon_url="attachment://gura.png",
+        icon_url="https://raw.githubusercontent.com/FireStreaker2/firestreaker2.gq/refs/heads/main/public/pfp.webp",
     )
 
-    await ctx.respond(embed=embed, files=[pfp, logo])
+    await ctx.respond(embed=embed)
 
 
 bot.run(config["token"])
