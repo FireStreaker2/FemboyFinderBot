@@ -239,7 +239,7 @@ async def stats(ctx):
     )
     embed.add_field(
         name="Femboys",
-        value=f"I have found {int(await r.get("femboys") or 0)} femboys {'this month' if config['monthlyReset'] else 'so far'}.",
+        value=f"I have found {int((await r.get('femboys')) or 0)} femboys {'this month' if config['monthlyReset'] else 'so far'}.",
         inline=False,
     )
     embed.add_field(
