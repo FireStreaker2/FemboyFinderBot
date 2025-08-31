@@ -168,6 +168,9 @@ async def find(ctx, query):
         )
 
         await ctx.respond(embed=embed)
+        if image.lower().endswith((".mp4", ".webm", ".mov", ".avi")):
+            await ctx.respond(image)
+
         await r.incr("femboys")
 
     else:
