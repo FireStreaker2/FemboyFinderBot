@@ -27,6 +27,7 @@ r = redis.Redis(host="localhost", port=6379, db=0)
 print("Connected to Redis!")
 
 
+# util functions
 async def fetch(url):
     async with ClientSession() as session:
         async with session.get(url) as response:
@@ -34,6 +35,19 @@ async def fetch(url):
                 return await response.json()
             else:
                 response.raise_for_status()
+
+
+def truncate(text, max_length):
+    if len(text) <= max_length:
+        return text
+
+    truncated = text[: max_length - 3]
+    last = truncated.rfind(" ")
+
+    if last == -1:
+        return truncated + "..."
+
+    return truncated[:last] + "..."
 
 
 # events
@@ -87,8 +101,8 @@ async def on_guild_join(guild):
             url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg"
         )
         embed.set_footer(
-            text="Made by FireStreaker2",
-            icon_url="https://raw.githubusercontent.com/FireStreaker2/firestreaker2.gq/refs/heads/main/public/pfp.webp",
+            text="FemboyFinderBot ❤️",
+            icon_url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg",
         )
 
         await channel.send(embed=embed)
@@ -128,6 +142,11 @@ async def check_reset():
     },
     description="Find a femboy near you!",
 )
+@discord.option(
+    "query",
+    description="Tags to search for!",
+    required=True,
+)
 async def find(ctx, query):
     await ctx.defer()
 
@@ -147,15 +166,15 @@ async def find(ctx, query):
                 url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg"
             )
             embed.set_footer(
-                text="Made by FireStreaker2",
-                icon_url="https://raw.githubusercontent.com/FireStreaker2/firestreaker2.gq/refs/heads/main/public/pfp.webp",
+                text="FemboyFinderBot ❤️",
+                icon_url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg",
             )
 
             await ctx.respond(embed=embed)
             return
 
         image = data.get("url")
-        tags = data.get("tags").replace("_", r"\_")
+        tags = truncate(data.get("tags").replace("_", r"\_"), 1024)
         source = data.get("source")
 
         embed = discord.Embed(title="Femboy Found!", url=source)
@@ -163,8 +182,8 @@ async def find(ctx, query):
         embed.add_field(name="Tags", value=tags, inline=False)
         embed.set_image(url=image)
         embed.set_footer(
-            text="Made by FireStreaker2",
-            icon_url="https://raw.githubusercontent.com/FireStreaker2/firestreaker2.gq/refs/heads/main/public/pfp.webp",
+            text="FemboyFinderBot ❤️",
+            icon_url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg",
         )
 
         await ctx.respond(embed=embed)
@@ -182,8 +201,8 @@ async def find(ctx, query):
             url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg"
         )
         embed.set_footer(
-            text="Made by FireStreaker2",
-            icon_url="https://raw.githubusercontent.com/FireStreaker2/firestreaker2.gq/refs/heads/main/public/pfp.webp",
+            text="FemboyFinderBot ❤️",
+            icon_url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg",
         )
 
         await ctx.respond(embed=embed)
@@ -217,8 +236,8 @@ async def about(ctx):
         url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg"
     )
     embed.set_footer(
-        text="Made by FireStreaker2",
-        icon_url="https://raw.githubusercontent.com/FireStreaker2/firestreaker2.gq/refs/heads/main/public/pfp.webp",
+        text="FemboyFinderBot ❤️",
+        icon_url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg",
     )
 
     await ctx.respond(embed=embed)
@@ -254,8 +273,8 @@ async def stats(ctx):
         url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg"
     )
     embed.set_footer(
-        text="Made by FireStreaker2",
-        icon_url="https://raw.githubusercontent.com/FireStreaker2/firestreaker2.gq/refs/heads/main/public/pfp.webp",
+        text="FemboyFinderBot ❤️",
+        icon_url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg",
     )
 
     await ctx.respond(embed=embed)
@@ -301,8 +320,8 @@ async def help(ctx):
         url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg"
     )
     embed.set_footer(
-        text="Made by FireStreaker2",
-        icon_url="https://raw.githubusercontent.com/FireStreaker2/firestreaker2.gq/refs/heads/main/public/pfp.webp",
+        text="FemboyFinderBot ❤️",
+        icon_url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg",
     )
 
     await ctx.respond(embed=embed)
