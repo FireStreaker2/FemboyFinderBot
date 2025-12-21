@@ -155,7 +155,7 @@ async def find(ctx, query):
             return
 
         image = data.get("url")
-        tags = data.get("tags")
+        tags = data.get("tags").replace("_", r"\_")
         source = data.get("source")
 
         embed = discord.Embed(title="Femboy Found!", url=source)
@@ -176,7 +176,7 @@ async def find(ctx, query):
     else:
         embed = discord.Embed(
             title="Error",
-            description="This channel is not marked as NSFW. In order to succesfully run this command, please mark this channel as NSFW and rerun this command.",
+            description="This channel is not marked as NSFW. In order to successfully run this command, please mark this channel as NSFW and rerun this command.",
         )
         embed.set_thumbnail(
             url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg"
