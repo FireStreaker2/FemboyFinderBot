@@ -266,7 +266,7 @@ async def stats(ctx):
     )
     embed.add_field(
         name="Shard",
-        value=f"Shard: {ctx.guild.shard_id + 1}/{bot.shard_count}\nPing: {round(bot.latency * 1000)}ms",
+        value=f"Shard: {(ctx.guild.shard_id + 1) if ctx.guild else '0'}/{bot.shard_count}\nPing: {round(bot.latency * 1000)}ms",
         inline=False,
     )
     embed.set_thumbnail(
