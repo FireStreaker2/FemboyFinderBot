@@ -51,7 +51,7 @@ rdbchecksum yes
 
 ## Sharding
 
-By default the bot is sharded, as the official instance is thousands of servers. If you are selfhosting it is likely you will be starting from very little servers, in which case it would be better to disable sharding initially. For more info, please refer to the [official discord documentation](https://discord.com/developers/docs/events/gateway#sharding).
+By default the bot is sharded, as the official instance is in thousands of servers. If you are selfhosting it is likely you will be starting from very little servers, in which case it would be better to disable sharding initially. For more info, please refer to the [official discord documentation](https://discord.com/developers/docs/events/gateway#sharding).
 
 ```diff
 # main.py
@@ -79,6 +79,16 @@ When running the bot, there are a few environment variables that can be added in
 | `/about` | Send the about message                |
 | `/stats` | Send the bot statistics               |
 | `/help`  | Send the help message                 |
+
+# Searching
+
+FemboyFinderBot and the FemboyFinder API use tags as the basis of searching. For documentation regarding all the features of searching (i.e. syntax, list of tags), please refer to the respective documentation.
+
+> The FemboyFinder API is using yande.re as of v1.0.3, so the documentation is also from them.
+
+- [List of All Tags](https://yande.re/tag)
+- [Syntax Cheatsheet](https://yande.re/help/cheatsheet)
+- [API Documentation](https://yande.re/wiki/show?title=api_v2)
 
 # Support
 

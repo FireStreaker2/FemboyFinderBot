@@ -298,7 +298,7 @@ async def help(ctx):
     embed.add_field(name="Prefix", value="``/``", inline=False)
     embed.add_field(
         name="/find [query]",
-        value="Find a femboy!\nExample: ``/find astolfo``\n\n> Note that if you are trying to search with a term that has more than one word, use a ``_`` instead of a space. If you are searching for multiple tags, then use a space between them.\n> Example: ``/find felix_argyle``\n> Example 2: ``/find astolfo stockings``",
+        value="Find a femboy!\nExample: ``/find *astolfo*``\n\n> If you are trying to search with a term that has more than one word, use a ``_`` instead of a space. If you are searching for multiple tags, then use a space between them. Some tags may be more specific than expected; if so, add a wild card symbol `*` around the term.\n\n> Example: ``/find felix_argyle``\n> Example 2: ``/find *astolfo* stockings``\n\nYou may use all the syntax supported by common image booru sites. For a list, please refer to the [cheatsheet](https://yande.re/help/cheatsheet) or the [list of all tags](https://yande.re/tag)",
         inline=False,
     )
     embed.add_field(
