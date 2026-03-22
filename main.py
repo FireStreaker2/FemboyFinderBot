@@ -3,6 +3,7 @@ import discord
 from discord.ext import commands, tasks
 from asyncio import sleep
 from aiohttp import ClientSession
+from io import BytesIO
 from os import getenv
 from dotenv import load_dotenv
 from datetime import datetime
@@ -30,10 +31,20 @@ print("Connected to Redis!")
 # util functions
 async def fetch(url):
     async with ClientSession() as session:
-        async with session.get(url) as response:
+        headers = {
+            "Referer": "https://gelbooru.com/",
+        }
+        async with session.get(url, headers=headers) as response:
             if response.status == 200:
-                return await response.json()
+                content = response.headers.get("Content-Type", "")
+                if "application/json" in content:
+                    return await response.json()
+                elif content.startswith("image/"):
+                    return await response.read()
+                else:
+                    return await response.text()
             else:
+                print(response.status)
                 response.raise_for_status()
 
 
@@ -174,19 +185,23 @@ async def find(ctx, query):
             return
 
         image = data.get("url")
+        file = None
         tags = truncate(data.get("tags").replace("_", r"\_"), 1024)
         source = data.get("source")
+
+        if not image.lower().endswith((".mp4", ".webm", ".mov", ".avi")):
+            file = discord.File(BytesIO(await fetch(image)), filename="image.jpg")
 
         embed = discord.Embed(title="Femboy Found!", url=source)
         embed.add_field(name="Query", value=query, inline=False)
         embed.add_field(name="Tags", value=tags, inline=False)
-        embed.set_image(url=image)
+        embed.set_image(url="attachment://image.jpg")
         embed.set_footer(
             text="FemboyFinderBot ❤️",
             icon_url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg",
         )
 
-        await ctx.respond(embed=embed)
+        await ctx.respond(embed=embed, file=file)
         if image.lower().endswith((".mp4", ".webm", ".mov", ".avi")):
             await ctx.respond(image)
 
