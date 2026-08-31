@@ -10,7 +10,7 @@ We want to be transparent about the data we collect and why we collect it. When 
 
 The only information we collect is the usage of the "find" command. We log the number of times the "find" command is executed to help us understand the popularity of this feature and improve our services. This information is solely used for statistical purposes and does not identify individual users or their actions.
 
-However, please note that we reset this data the first of every month. If you would like this data to be removed before the planned date, please [email us](mailto:help@firestreaker2.gq)
+However, please note that we reset this data the first of every month. If you would like this data to be removed before the planned date, please [email us](mailto:help@firestreaker2.dev)
 
 ## 2. How We Use Collected Information
 
@@ -30,7 +30,7 @@ As we do not collect any personal information or messages, there are no specific
 
 If you have any questions, concerns, or feedback regarding this Privacy Policy or the Bot's functionality, you can reach out to us through the following means:
 
-Email: ``help@firestreaker2.gq``  
+Email: ``help@firestreaker2.dev``  
 Discord Server: ``https://discord.gg/bruQhB8Eg5``  
 Please note that while we strive to respond promptly, the response time may vary depending on the volume of inquiries.
 
