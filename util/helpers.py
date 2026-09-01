@@ -1,7 +1,7 @@
 from aiohttp import ClientSession
 
 
-async def fetch(url):
+async def fetch(url: str):
     async with ClientSession() as session:
         headers = {
             "Referer": "https://gelbooru.com/",
@@ -21,7 +21,8 @@ async def fetch(url):
                 response.raise_for_status()
 
 
-def truncate(text, max_length):
+
+def truncate(text: str, max_length: int):
     if len(text) <= max_length:
         return text
 

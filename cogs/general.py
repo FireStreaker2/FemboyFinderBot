@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 from io import BytesIO
 from database.redis import r
+from util.embed import error_embed
 
 
 class General(commands.Cog):
@@ -33,22 +34,10 @@ class General(commands.Cog):
                 data = await util.helpers.fetch(f"{util.config.API}/{query}")
 
             except:
-                embed = (
-                    discord.Embed(
-                        title="An Error Occurred",
-                        description="Hey, hey, Master! Something's up, let's go check it out!",
-                    )
-                    .add_field(
-                        name="Internal Server Error", value="404: No femboys found"
-                    )
-                    .set_thumbnail(
-                        url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg"
-                    )
-                    .set_footer(
-                        text="FemboyFinderBot ❤️",
-                        icon_url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg",
-                    )
-                )
+                embed = error_embed(
+                    title="An Error Occurred",
+                    description="Hey, hey, Master! Something's up, let's go check it out!",
+                ).add_field(name="Internal Server Error", value="404: No femboys found")
 
                 await ctx.respond(embed=embed)
                 return
@@ -81,18 +70,9 @@ class General(commands.Cog):
             await r.incr("femboys")
 
         else:
-            embed = (
-                discord.Embed(
-                    title="Error",
-                    description="This channel is not marked as NSFW. In order to successfully run this command, please mark this channel as NSFW and rerun this command.",
-                )
-                .set_thumbnail(
-                    url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg"
-                )
-                .set_footer(
-                    text="FemboyFinderBot ❤️",
-                    icon_url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg",
-                )
+            embed = error_embed(
+                title="Error",
+                description="This channel is not marked as NSFW. In order to successfully run this command, please mark this channel as NSFW and rerun this command.",
             )
 
             await ctx.respond(embed=embed)

@@ -2,6 +2,7 @@ import util.config
 import discord
 from discord.ext import commands
 from database.redis import r
+from util.embed import base_embed
 
 
 class Info(commands.Cog):
@@ -20,7 +21,7 @@ class Info(commands.Cog):
         await ctx.defer()
 
         embed = (
-            discord.Embed(title="Stats")
+            base_embed(title="Stats")
             .add_field(
                 name="Guilds",
                 value=f"I am currently in {len(self.bot.guilds)} servers.",
@@ -35,13 +36,6 @@ class Info(commands.Cog):
                 name="Shard",
                 value=f"Shard: {(ctx.guild.shard_id + 1) if ctx.guild else '0'}/{self.bot.shard_count}\nPing: {round(self.bot.latency * 1000)}ms",
                 inline=False,
-            )
-            .set_thumbnail(
-                url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg"
-            )
-            .set_footer(
-                text="FemboyFinderBot ❤️",
-                icon_url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg",
             )
         )
 
@@ -59,7 +53,7 @@ class Info(commands.Cog):
         await ctx.defer()
 
         embed = (
-            discord.Embed(
+            base_embed(
                 title="About",
                 description="FemboyFinderBot is a bot developed by firestreaker2, using Pycord. It works by querying the FemboyFinder API for images given the value provided by the end user, and randomly selects one.",
             )
@@ -71,13 +65,6 @@ class Info(commands.Cog):
                 name="More Resources",
                 value="For more info, you may refer to the [GitHub Page](https://github.com/FireStreaker2/FemboyFinderBot) or the [FemboyFinder API](https://github.com/FireStreaker2/FemboyFinder).",
                 inline=False,
-            )
-            .set_thumbnail(
-                url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg"
-            )
-            .set_footer(
-                text="FemboyFinderBot ❤️",
-                icon_url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg",
             )
         )
 
@@ -95,7 +82,7 @@ class Info(commands.Cog):
         await ctx.defer()
 
         embed = (
-            discord.Embed(title="Help", description="Help for FemboyFinderBot")
+            base_embed(title="Help", description="Help for FemboyFinderBot")
             .add_field(name="Prefix", value="``/``", inline=False)
             .add_field(
                 name="/find [query]",
@@ -120,13 +107,6 @@ class Info(commands.Cog):
             .add_field(
                 name="Support Server",
                 value="You may join our support server [here](https://discord.gg/bruQhB8Eg5).",
-            )
-            .set_thumbnail(
-                url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg"
-            )
-            .set_footer(
-                text="FemboyFinderBot ❤️",
-                icon_url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg",
             )
         )
 

@@ -6,6 +6,7 @@ from discord.ext import commands
 from os import listdir
 from asyncio import sleep
 from tasks.checkreset import check_reset
+from util.embed import base_embed, error_embed
 
 bot = commands.AutoShardedBot(intents=util.config.INTENTS)
 for filename in listdir("./cogs"):
@@ -44,7 +45,7 @@ async def on_guild_join(guild):
     try:
         channel = guild.system_channel
         embed = (
-            discord.Embed(
+            base_embed(
                 title="Hello!",
                 description="Yahoo! My name is Astolfo! Rider Class! And, and...umm, nice to meet you!",
             )
@@ -60,13 +61,6 @@ async def on_guild_join(guild):
                 name="Notice",
                 value="Please note that I may occasionally send NSFW content.",
             )
-            .set_thumbnail(
-                url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg"
-            )
-            .set_footer(
-                text="FemboyFinderBot ❤️",
-                icon_url="https://raw.githubusercontent.com/FireStreaker2/FemboyFinderBot/refs/heads/main/images/astolfo.jpg",
-            )
         )
 
         await channel.send(embed=embed)
@@ -77,13 +71,42 @@ async def on_guild_join(guild):
 @bot.event
 async def on_application_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.respond(
-            "Hm? Is it tough not having any common sense? Well, I guess so. But you know, there are things that only I can understand because I lack common sense. (you forgot to add all the arguments)"
+        embed = error_embed(
+            title="Missing Arguments",
+            description=(
+                "Hm? Is it tough not having any common sense? "
+                "Well, I guess so. But you know, there are things "
+                "that only I can understand because I lack common sense."
+            ),
+        ).add_field(
+            name="What happened?",
+            value="You forgot to add all the required arguments.",
+            inline=False,
         )
+
+        await ctx.respond(embed=embed)
+
     elif isinstance(error, commands.CommandNotFound):
-        await ctx.respond("master, i couldnt find that command")
+        embed = error_embed(
+            title="Command Not Found",
+            description="Master, I couldn't find that command!",
+        )
+
+        await ctx.respond(embed=embed)
+
     else:
-        await ctx.respond(f"An error occurred: {error}")
+        print(f"Error in {ctx.command}: {error}")
+
+        embed = error_embed(
+            title="Something Went Wrong",
+            description=(
+                "Something unexpected happened while running this command. "
+                "Please try again later."
+                "If this happens again, please make a support ticket in the [support server](https://discord.gg/bruQhB8Eg5)."
+            ),
+        )
+
+        await ctx.respond(embed=embed)
 
 
 bot.run(util.config.TOKEN)
