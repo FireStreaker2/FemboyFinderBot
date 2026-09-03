@@ -12,14 +12,15 @@ async def fetch(url: str):
                 content = response.headers.get("Content-Type", "")
                 if "application/json" in content:
                     return await response.json()
+
                 elif content.startswith("image/"):
                     return await response.read()
+
                 else:
                     return await response.text()
             else:
                 print(response.status)
                 response.raise_for_status()
-
 
 
 def truncate(text: str, max_length: int):

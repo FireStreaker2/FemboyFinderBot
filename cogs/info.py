@@ -105,6 +105,11 @@ class Info(commands.Cog):
                 inline=False,
             )
             .add_field(
+                name="Ratings",
+                value="You may use either the ``rating:`` tag or the rating option to filter results by rating. The available ratings are:\n- ``general`` - G-rated content. Content that is completely safe for work. Nothing sexualized or inappropriate to view in front of others.\n- ``sensitive`` - Ecchi, sexy, suggestive, or mildly erotic content. Skimpy or revealing_clothes, swimsuits, underwear, images focused on the breasts or ass, and any other content that is potentially not safe for work.\n- ``questionable`` - Softcore erotica. Simple nudity or near-nudity, but no explicit sex or exposed genitals.\n- ``explicit`` - Blatantly sexual content. Explicit sex acts, exposed genitals, and sexual fluids.\n\n Sourced from the [Gelbooru Wiki](https://gelbooru.com/index.php?page=wiki&s=view&id=2535)",
+                inline=False,
+            )
+            .add_field(
                 name="Support Server",
                 value="You may join our support server [here](https://discord.gg/bruQhB8Eg5).",
             )
