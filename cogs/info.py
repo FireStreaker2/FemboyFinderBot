@@ -3,6 +3,7 @@ import discord
 from discord.ext import commands
 from util.embeds import base_embed
 from database.redis import r
+from views.support import SupportView
 
 
 class Info(commands.Cog):
@@ -68,7 +69,7 @@ class Info(commands.Cog):
             )
         )
 
-        await ctx.respond(embed=embed)
+        await ctx.respond(embed=embed, view=SupportView())
 
     @discord.slash_command(
         name="help",
@@ -115,7 +116,7 @@ class Info(commands.Cog):
             )
         )
 
-        await ctx.respond(embed=embed)
+        await ctx.respond(embed=embed, view=SupportView())
 
 
 def setup(bot: commands.Bot):

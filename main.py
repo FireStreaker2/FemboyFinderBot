@@ -7,6 +7,7 @@ from os import listdir
 from asyncio import sleep
 from tasks.checkreset import check_reset
 from util.embeds import base_embed, error_embed
+from views.support import SupportView
 
 bot = commands.AutoShardedBot(intents=util.config.INTENTS)
 for filename in listdir("./cogs"):
@@ -51,7 +52,7 @@ async def on_guild_join(guild):
             )
             .add_field(
                 name="Help",
-                value=f"If you need help, you can run the ``/help`` command!",
+                value=f"If you need help, you can run the ``/help`` command! Please also join my support discord for more information!",
                 inline=False,
             )
             .add_field(
@@ -63,7 +64,7 @@ async def on_guild_join(guild):
             )
         )
 
-        await channel.send(embed=embed)
+        await channel.send(embed=embed, view=SupportView())
     except Exception as error:
         print(f"Unable to send welcome message: {error}")
 
