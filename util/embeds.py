@@ -5,10 +5,20 @@ FOOTER_TEXT = "FemboyFinderBot ❤️"
 
 
 def base_embed(**kwargs):
-    embed = Embed(**kwargs)
+    embed = (
+        Embed(**kwargs)
+        .set_thumbnail(url=THUMBNAIL_URL)
+        .set_footer(
+            text=FOOTER_TEXT,
+            icon_url=THUMBNAIL_URL,
+        )
+    )
 
-    embed.set_thumbnail(url=THUMBNAIL_URL)
-    embed.set_footer(
+    return embed
+
+
+def raw_embed(**kwargs):
+    embed = Embed(**kwargs).set_footer(
         text=FOOTER_TEXT,
         icon_url=THUMBNAIL_URL,
     )

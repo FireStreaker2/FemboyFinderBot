@@ -1,8 +1,8 @@
 import util.config
 import discord
 from discord.ext import commands
+from util.embeds import base_embed
 from database.redis import r
-from util.embed import base_embed
 
 
 class Info(commands.Cog):
@@ -116,17 +116,6 @@ class Info(commands.Cog):
         )
 
         await ctx.respond(embed=embed)
-
-    @discord.slash_command(
-        name="ping",
-        integration_types={
-            discord.IntegrationType.guild_install,
-            discord.IntegrationType.user_install,
-        },
-        description="Check the bot's latency",
-    )
-    async def ping(self, ctx: discord.ApplicationContext):
-        await ctx.respond(f"{round(self.bot.latency * 1000)}ms")
 
 
 def setup(bot: commands.Bot):

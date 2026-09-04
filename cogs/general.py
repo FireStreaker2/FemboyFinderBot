@@ -2,7 +2,7 @@ import util.config
 import util.helpers
 import discord
 from discord.ext import commands
-from util.embed import error_embed
+from util.embeds import error_embed
 from database.redis import r
 
 

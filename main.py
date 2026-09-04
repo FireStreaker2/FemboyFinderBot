@@ -6,7 +6,7 @@ from discord.ext import commands
 from os import listdir
 from asyncio import sleep
 from tasks.checkreset import check_reset
-from util.embed import base_embed, error_embed
+from util.embeds import base_embed, error_embed
 
 bot = commands.AutoShardedBot(intents=util.config.INTENTS)
 for filename in listdir("./cogs"):

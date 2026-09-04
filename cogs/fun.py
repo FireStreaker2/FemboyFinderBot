@@ -1,13 +1,18 @@
+import util.helpers
 import discord
 from discord.ext import commands
+from util.embeds import raw_embed, error_embed
 from util.emojis import emojis
+from views.hug import HugView
 
 
 class Fun(commands.Cog):
+    fun = discord.SlashCommandGroup("fun", "Fun roleplay commands for FemboyFinderBot")
+
     def __init__(self, bot):
         self.bot = bot
 
-    @discord.slash_command(
+    @fun.command(
         name="hug",
         integration_types={
             discord.IntegrationType.guild_install,
@@ -19,15 +24,52 @@ class Fun(commands.Cog):
         "user",
         description="The user to hug!",
         required=True,
-        autocomplete=discord.utils.basic_autocomplete,
     )
     async def hug(self, ctx, user: discord.Member):
         if user == ctx.author:
-            await ctx.respond("You can't hug yourself!")
+            embed = error_embed(
+                title="Error",
+                description=f"You cannot hug yourself! Please hug someone else... {emojis.get('astolfo_shy')}",
+            )
+
+            await ctx.respond(embed=embed)
             return
 
+        query = "hug astolfo_(fate) rating:general"
+        try:
+            data = await util.helpers.fetch(
+                f"{util.config.API}/{query}?provider=danbooru"
+            )
+        except Exception as error:
+            print(f"Error fetching data from API: {error}")
+
+            embed = error_embed(
+                title="An Error Occurred",
+                description=(
+                    "Hey, hey, Master! Something's up, let's go check it out!"
+                ),
+            ).add_field(
+                name="Internal Server Error",
+                value="404: No femboys found",
+            )
+
+            await ctx.respond(embed=embed)
+            return
+
+        embed = raw_embed(
+            title="Hug",
+            description=f"{ctx.author.mention} hugs {user.mention}! {emojis.get('astolfo_shy')}",
+        ).set_image(url=data["url"]["danbooru"])
+
+        view = HugView(
+            author=ctx.author,
+            target=user,
+            image=data["url"]["danbooru"],
+        )
+
         await ctx.respond(
-            f"{ctx.author.mention} hugs {user.mention}! {emojis.get('astolfo_shy')}"
+            embed=embed,
+            view=view,
         )
 
 
