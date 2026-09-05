@@ -3,7 +3,7 @@ from util.emojis import emojis
 from views.template import TemplateView
 
 
-class HugView(TemplateView):
+class KissView(TemplateView):
     def __init__(
         self,
         author: Member,
@@ -13,12 +13,12 @@ class HugView(TemplateView):
         super().__init__(
             author=author,
             target=target,
-            title="Hug",
+            title="Kiss",
             image=image,
-            button_label="Hug Back",
+            button_label="Kiss Back",
             button_emoji="astolfo_shy",
-            action_description="hugs",
+            action_description="kisses",
             response_description=(
-                "{target} hugs {author} back! " f"{emojis.get('astolfo_shy')}"
+                "{target} kisses {author} back! " f"{emojis.get('astolfo_shy')}"
             ),
         )
