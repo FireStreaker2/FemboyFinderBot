@@ -7,17 +7,25 @@ from views import HugView, KissView
 
 
 class Fun(commands.Cog):
-    fun = discord.SlashCommandGroup("fun", "Fun roleplay commands for FemboyFinderBot")
+    fun = discord.SlashCommandGroup(
+        "fun",
+        "Fun roleplay commands for FemboyFinderBot",
+        integration_types={
+            discord.IntegrationType.guild_install,
+            discord.IntegrationType.user_install,
+        },
+        contexts={
+            discord.InteractionContextType.guild,
+            discord.InteractionContextType.bot_dm,
+            discord.InteractionContextType.private_channel,
+        },
+    )
 
     def __init__(self, bot):
         self.bot = bot
 
     @fun.command(
         name="hug",
-        integration_types={
-            discord.IntegrationType.guild_install,
-            discord.IntegrationType.user_install,
-        },
         description="Hug a friend!",
     )
     @discord.option(
@@ -74,10 +82,6 @@ class Fun(commands.Cog):
 
     @fun.command(
         name="kiss",
-        integration_types={
-            discord.IntegrationType.guild_install,
-            discord.IntegrationType.user_install,
-        },
         description="Kiss a friend!",
     )
     @discord.option(
