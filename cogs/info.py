@@ -1,9 +1,11 @@
 import util.config
 import discord
 from discord.ext import commands
+from util.helpers import add_commands
 from util.embeds import base_embed
-from database.redis import r
+from util.emojis import emojis
 from views.support import SupportView
+from database.redis import r
 
 
 class Info(commands.Cog):
@@ -64,7 +66,7 @@ class Info(commands.Cog):
             )
             .add_field(
                 name="More Resources",
-                value="For more info, you may refer to the [GitHub Page](https://github.com/FireStreaker2/FemboyFinderBot) or the [FemboyFinder API](https://github.com/FireStreaker2/FemboyFinder).",
+                value=f"For more info, you may refer to the [GitHub Page](https://github.com/FireStreaker2/FemboyFinderBot) or the [FemboyFinder API](https://github.com/FireStreaker2/FemboyFinder). Please consider leaving a star to support me! {emojis.get('astolfo_love')}",
                 inline=False,
             )
         )
@@ -82,41 +84,42 @@ class Info(commands.Cog):
     async def help(self, ctx: discord.ApplicationContext):
         await ctx.defer()
 
-        embed = (
-            base_embed(title="Help", description="Help for FemboyFinderBot")
-            .add_field(name="Prefix", value="``/``", inline=False)
-            .add_field(
-                name="/find [query]",
-                value="Find a femboy!\nExample: ``/find *astolfo*``\n\n> If you are trying to search with a term that has more than one word, use a ``_`` instead of a space. If you are searching for multiple tags, then use a space between them. Some tags may be more specific than expected; if so, add a wild card symbol `*` around the term.\n\n> Example: ``/find felix_argyle``\n> Example 2: ``/find *astolfo* stockings``\n\nYou may use all the syntax supported by common image booru sites. For a list, please refer to the [cheatsheet](https://yande.re/help/cheatsheet) or the [list of all tags](https://yande.re/tag)",
-                inline=False,
-            )
-            .add_field(
-                name="/about",
-                value="Sends the about message.\nExample: ``/about``",
-                inline=False,
-            )
-            .add_field(
-                name="/stats",
-                value="Sends bot statistics.\nExample: ``/stats``",
-                inline=False,
-            )
-            .add_field(
-                name="/help",
-                value="Sends this message!\nExample: ``/help``",
-                inline=False,
-            )
-            .add_field(
-                name="Ratings",
-                value="You may use either the ``rating:`` tag or the rating option to filter results by rating. The available ratings are:\n- ``general`` - G-rated content. Content that is completely safe for work. Nothing sexualized or inappropriate to view in front of others.\n- ``sensitive`` - Ecchi, sexy, suggestive, or mildly erotic content. Skimpy or revealing_clothes, swimsuits, underwear, images focused on the breasts or ass, and any other content that is potentially not safe for work.\n- ``questionable`` - Softcore erotica. Simple nudity or near-nudity, but no explicit sex or exposed genitals.\n- ``explicit`` - Blatantly sexual content. Explicit sex acts, exposed genitals, and sexual fluids.\n\n Sourced from the [Gelbooru Wiki](https://gelbooru.com/index.php?page=wiki&s=view&id=2535)",
-                inline=False,
-            )
-            .add_field(
-                name="Support Server",
-                value="You may join our support server [here](https://discord.gg/bruQhB8Eg5).",
-            )
+        embed = base_embed(
+            title="Help",
+            description="Help for FemboyFinderBot",
+        ).add_field(
+            name="Prefix",
+            value="``/``",
+            inline=False,
         )
 
-        await ctx.respond(embed=embed, view=SupportView())
+        add_commands(embed, self.bot.application_commands)
+
+        embed.add_field(
+            name="Ratings",
+            value=(
+                "You may use either the ``rating:`` tag or the rating option "
+                "to filter results by rating. The available ratings are:\n"
+                "- ``general`` - G-rated content.\n"
+                "- ``sensitive`` - Suggestive or mildly erotic content.\n"
+                "- ``questionable`` - Softcore erotica.\n"
+                "- ``explicit`` - Explicit sexual content.\n\n"
+                "Sourced from the [Gelbooru Wiki]"
+                "(https://gelbooru.com/index.php?page=wiki&s=view&id=2535)"
+            ),
+            inline=False,
+        ).add_field(
+            name="Support Server",
+            value=(
+                "You may join our support server "
+                "[here](https://discord.gg/bruQhB8Eg5)."
+            ),
+        )
+
+        await ctx.respond(
+            embed=embed,
+            view=SupportView(),
+        )
 
 
 def setup(bot: commands.Bot):

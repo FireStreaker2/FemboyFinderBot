@@ -1,3 +1,4 @@
+import discord
 from aiohttp import ClientSession
 
 
@@ -34,3 +35,55 @@ def truncate(text: str, max_length: int):
         return truncated + "..."
 
     return truncated[:last] + "..."
+
+
+def add_commands(embed: discord.Embed, commands: list, prefix: str = ""):
+    descriptions = {
+        "find": (
+            "Find a femboy!\n\n"
+            "> If you are trying to search with a term that has more than one "
+            "word, use a ``_`` instead of a space. If you are searching for "
+            "multiple tags, then use a space between them. Some tags may be "
+            "more specific than expected; if so, add a wild card symbol `*` "
+            "around the term.\n\n"
+            "> Example: ``/find felix_argyle``\n"
+            "> Example 2: ``/find *astolfo* stockings``\n\n"
+            "You may use all the syntax supported by common image booru "
+            "sites. For a list, please refer to the "
+            "[cheatsheet](https://gelbooru.com/index.php?page=help&topic=cheatsheet) or the "
+            "[list of all tags](https://gelbooru.com/index.php?page=tags&s=list)"
+        ),
+    }
+
+    for command in sorted(commands, key=lambda command: command.name):
+        name = f"{prefix}{command.name}"
+
+        if isinstance(command, discord.SlashCommandGroup):
+            add_commands(
+                embed,
+                command.subcommands,
+                prefix=f"{name} ",
+            )
+            continue
+
+        command_id = command.parent.id if command.parent else command.id
+        parameters = []
+        for option in command.options:
+            if option.required:
+                parameters.append(f"<{option.name}>")
+
+            else:
+                parameters.append(f"[{option.name}]")
+
+        command_name = f"</{name}:{command_id}>"
+        if parameters:
+            command_name += " " + " ".join(parameters)
+
+        embed.add_field(
+            name=command_name,
+            value=descriptions.get(
+                command.name,
+                command.description or "No description provided.",
+            ),
+            inline=False,
+        )
