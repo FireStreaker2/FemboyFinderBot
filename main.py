@@ -1,13 +1,14 @@
 # packages
 import util.config
-import database.redis
 import discord
 from discord.ext import commands
 from os import listdir
 from asyncio import sleep
 from tasks.checkreset import check_reset
+from util.helpers import initialize_fetch, close_fetch
 from util.embeds import base_embed, error_embed
 from views.support import SupportView
+from database.redis import initialize_redis, r
 
 bot = commands.AutoShardedBot(intents=util.config.INTENTS)
 for filename in listdir("./cogs"):
@@ -21,14 +22,15 @@ async def on_ready():
     print(f"Logged in as {bot.user} ({bot.user.id})")
     print(f"Shards: {bot.shard_count}")
 
-    await database.redis.initialize_redis()
+    await initialize_fetch()
+    await initialize_redis()
     await util.emojis.emojis.load(bot)
 
     if util.config.MONTHLY_RESET == True:
         check_reset.start()
 
     if util.config.FEMBOYS:
-        await database.redis.r.set("femboys", util.config.FEMBOYS)
+        await r.set("femboys", util.config.FEMBOYS)
         print(f"Femboy count set to {util.config.FEMBOYS}\n")
 
     await bot.change_presence(
@@ -108,6 +110,18 @@ async def on_application_command_error(ctx, error):
         )
 
         await ctx.respond(embed=embed)
+
+
+@bot.event
+async def on_resumed():
+    print("Discord connection resumed.")
+
+
+@bot.event
+async def on_disconnect():
+    await close_fetch()
+
+    print("Disconnected from Discord.")
 
 
 bot.run(util.config.TOKEN)

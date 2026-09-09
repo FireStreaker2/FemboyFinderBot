@@ -1,27 +1,50 @@
 import discord
-from aiohttp import ClientSession
+import aiohttp
+
+session: aiohttp.ClientSession | None = None
 
 
-async def fetch(url: str):
-    async with ClientSession() as session:
-        headers = {
-            "Referer": "https://gelbooru.com/",
-        }
+async def initialize_fetch():
+    global session
 
-        async with session.get(url, headers=headers) as response:
-            if response.status == 200:
-                content = response.headers.get("Content-Type", "")
-                if "application/json" in content:
-                    return await response.json()
+    if session is None or session.closed:
+        session = aiohttp.ClientSession(
+            timeout=aiohttp.ClientTimeout(total=3),
+        )
 
-                elif content.startswith("image/"):
-                    return await response.read()
+    print("Fetch session initialized.")
 
-                else:
-                    return await response.text()
-            else:
-                print(response.status)
-                response.raise_for_status()
+
+async def close_fetch():
+    global session
+
+    if session is not None and not session.closed:
+        await session.close()
+
+    session = None
+
+
+async def fetch(url: str, headers: dict[str, str] | None = None):
+    if session is None or session.closed:
+        raise RuntimeError("Fetch session has not been initialized.")
+
+    async with session.get(
+        url,
+        headers=headers or {},
+    ) as response:
+        if response.status == 200:
+            content = response.headers.get("Content-Type", "")
+
+            if "application/json" in content:
+                return await response.json()
+
+            elif content.startswith("image/"):
+                return await response.read()
+
+            return await response.text()
+
+        print(f"Error fetching {url}: {response.status}")
+        response.raise_for_status()
 
 
 def truncate(text: str, max_length: int):

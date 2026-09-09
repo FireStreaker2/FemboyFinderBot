@@ -1,5 +1,6 @@
 import discord
-import aiohttp
+from urllib.parse import urlencode
+from util.helpers import fetch
 
 
 async def booru_autocomplete(ctx: discord.AutocompleteContext) -> list[str]:
@@ -9,27 +10,26 @@ async def booru_autocomplete(ctx: discord.AutocompleteContext) -> list[str]:
     if len(current_tag) < 2:
         return []
 
+    url = "https://danbooru.donmai.us/autocomplete.json?" + urlencode(
+        {
+            "search[query]": current_tag,
+            "search[type]": "tag_query",
+            "version": "3",
+            "limit": 20,
+        }
+    )
+
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                "https://danbooru.donmai.us/autocomplete.json",
-                params={
-                    "search[query]": current_tag,
-                    "search[type]": "tag_query",
-                    "version": "3",
-                    "limit": 20,
-                },
-                headers={
-                    "Accept": "application/json",
-                    "User-Agent": "FemboyFinderBot/1.0",
-                },
-                timeout=aiohttp.ClientTimeout(total=2),
-            ) as response:
+        data = await fetch(
+            url,
+            headers={
+                "Accept": "application/json",
+                "User-Agent": "FemboyFinderBot/1.0",
+            },
+        )
 
-                if response.status != 200:
-                    return []
-
-                data = await response.json(content_type=None)
+        if not isinstance(data, list):
+            return []
 
         prefix = query[: query.rfind(" ") + 1] if " " in query else ""
         suggestions = []
@@ -45,5 +45,5 @@ async def booru_autocomplete(ctx: discord.AutocompleteContext) -> list[str]:
 
         return suggestions[:25]
 
-    except (aiohttp.ClientError, TimeoutError):
+    except Exception:
         return []
