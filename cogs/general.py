@@ -2,6 +2,7 @@ import util.config
 import util.helpers
 import discord
 from discord.ext import commands
+from util.autocomplete import booru_autocomplete
 from util.embeds import error_embed
 from database.redis import r
 
@@ -22,6 +23,7 @@ class General(commands.Cog):
         "query",
         description="Tags to search for!",
         required=True,
+        autocomplete=booru_autocomplete,
     )
     @discord.option(
         "rating",
